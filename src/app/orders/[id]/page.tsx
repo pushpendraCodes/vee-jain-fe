@@ -373,7 +373,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               {Number(order.discount) > 0 ? (
                 <div className="flex justify-between text-accent">
                   <span>{order.offerTitle || "Offer"}{order.offerPercent ? ` · ${order.offerPercent}% off` : ""}</span>
-                  <span className="font-semibold tabular-nums">-{formatINR(order.discount)}</span>
+                  <span className="font-semibold tabular-nums">-{formatINR(Number(order.discount) || 0)}</span>
                 </div>
               ) : null}
               <div className="flex justify-between">

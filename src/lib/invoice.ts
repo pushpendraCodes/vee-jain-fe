@@ -192,7 +192,7 @@ export function buildInvoiceHtml(order: Order) {
     </table>
     <div class="totals">
       <div><span>Subtotal</span><span>${escapeHtml(formatINR(order.subtotal))}</span></div>
-      ${Number(order.discount) > 0 ? `<div><span>${escapeHtml(order.offerTitle || "Offer")}</span><span>-${escapeHtml(formatINR(order.discount))}</span></div>` : ""}
+      ${Number(order.discount) > 0 ? `<div><span>${escapeHtml(order.offerTitle || "Offer")}</span><span>-${escapeHtml(formatINR(Number(order.discount) || 0))}</span></div>` : ""}
       <div><span>Freight</span><span>${escapeHtml(formatINR(order.freight))}</span></div>
       <div><span>GST (18%)</span><span>${escapeHtml(formatINR(order.gst))}</span></div>
       <div class="grand"><span>Total</span><span>${escapeHtml(formatINR(order.total))}</span></div>

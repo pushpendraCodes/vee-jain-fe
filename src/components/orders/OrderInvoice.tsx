@@ -115,7 +115,7 @@ export default function OrderInvoice({ order }: { order: Order }) {
           {Number(order.discount) > 0 ? (
             <div className="flex justify-between text-text-secondary">
               <span>{order.offerTitle || "Offer"}</span>
-              <span className="tabular-nums text-text-primary">-{formatINR(order.discount)}</span>
+              <span className="tabular-nums text-text-primary">-{formatINR(Number(order.discount) || 0)}</span>
             </div>
           ) : null}
           <div className="flex justify-between text-text-secondary">
