@@ -18,10 +18,10 @@ export default function OrderInvoice({ order }: { order: Order }) {
   const address = order.address;
 
   return (
-    <section className="overflow-hidden rounded-[1.75rem] bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-hairline px-5 py-4 sm:px-6">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Invoice</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Invoice</p>
           <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
         </div>
         <div className="flex gap-2">
@@ -44,7 +44,7 @@ export default function OrderInvoice({ order }: { order: Order }) {
             </p>
           </div>
           <div className="text-right text-sm">
-            <span className="rounded-full bg-forest px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-dark">
+            <span className="rounded-full bg-surface-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-dark">
               {title}
             </span>
             <p className="mt-3 text-[11px] uppercase tracking-wider text-text-secondary">Invoice no.</p>
@@ -55,13 +55,13 @@ export default function OrderInvoice({ order }: { order: Order }) {
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-ivory p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Bill from</p>
+          <div className="rounded-2xl bg-surface-2 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Bill from</p>
             <p className="mt-1 text-sm font-semibold text-text-primary">{SELLER.name}</p>
             <p className="mt-1 text-sm leading-relaxed text-text-secondary">{SELLER.address}</p>
           </div>
-          <div className="rounded-2xl bg-ivory p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Bill to</p>
+          <div className="rounded-2xl bg-surface-2 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Bill to</p>
             {address ? (
               <div className="mt-1 text-sm leading-relaxed text-text-secondary">
                 <p className="font-semibold text-text-primary">{address.name || "Buyer"}</p>
@@ -132,7 +132,7 @@ export default function OrderInvoice({ order }: { order: Order }) {
           </div>
         </div>
 
-        <p className="mt-5 rounded-2xl bg-cream px-4 py-3 text-xs leading-relaxed text-text-secondary">
+        <p className="mt-5 rounded-2xl bg-bg px-4 py-3 text-xs leading-relaxed text-text-secondary">
           <span className="font-semibold text-text-primary">Amount in words: </span>
           {amountInWordsINR(order.total)}
         </p>

@@ -25,17 +25,17 @@ export default function PushOptIn() {
   if (!visible || !token) return null;
 
   return (
-    <div className="border-b border-border-hairline bg-sage-light/70 px-4 py-2.5">
+    <div className="border-b border-line bg-surface-2/70 px-4 py-2.5">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
         <p className="flex min-w-0 items-center gap-2 text-sm text-text-primary">
-          <Bell className="h-4 w-4 shrink-0 text-forest" />
+          <Bell className="h-4 w-4 shrink-0 text-ink" />
           <span>Turn on push alerts for order updates.</span>
         </p>
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             disabled={busy}
-            className="rounded-full bg-forest px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink disabled:opacity-60"
             onClick={async () => {
               setBusy(true);
               const ok = await registerWebPush(token, { prompt: true });

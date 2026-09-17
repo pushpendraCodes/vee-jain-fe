@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { Home, Store, GraduationCap, ShoppingBag, User } from "lucide-react";
 
@@ -19,6 +20,18 @@ export default function BottomNav() {
     s.cart.items.reduce((n, i) => n + i.quantity, 0)
   );
   const user = useAppSelector((s) => s.auth.user);
+  const prevCount = useRef(cartCount);
+  const [badgePop, setBadgePop] = useState(false);
+
+  useEffect(() => {
+    if (cartCount > prevCount.current) {
+      setBadgePop(true);
+      const t = window.setTimeout(() => setBadgePop(false), 450);
+      prevCount.current = cartCount;
+      return () => window.clearTimeout(t);
+    }
+    prevCount.current = cartCount;
+  }, [cartCount]);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 h-[72px] border-t border-border-hairline bg-ivory/95 px-2 backdrop-blur-xl md:hidden">
@@ -44,7 +57,13 @@ export default function BottomNav() {
               </div>
               <span className="mt-0.5 text-[10px] font-medium">{item.label}</span>
               {item.href === "/cart" && cartCount > 0 && (
-                <span className="absolute right-1 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">{cartCount}</span>
+                <span
+                  className={`absolute right-1 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white ${
+                    badgePop ? "cart-badge-pop" : ""
+                  }`}
+                >
+                  {cartCount}
+                </span>
               )}
             </Link>
           );

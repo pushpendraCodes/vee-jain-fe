@@ -103,9 +103,9 @@ export default function ReviewModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="review-modal-title"
-        className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl"
+        className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-surface"
       >
-        <div className="flex items-start justify-between gap-3 border-b border-border-hairline px-6 py-5">
+        <div className="flex items-start justify-between gap-3 border-b border-line px-6 py-5">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-text-secondary">Verified review</p>
             <h2 id="review-modal-title" className="mt-1 font-display text-xl font-semibold text-text-primary">
@@ -117,7 +117,7 @@ export default function ReviewModal({
             type="button"
             onClick={onClose}
             disabled={submitting}
-            className="rounded-full bg-ivory p-2 text-text-secondary transition hover:text-text-primary"
+            className="rounded-full bg-surface p-2 text-text-secondary transition hover:text-text-primary"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -155,14 +155,14 @@ export default function ReviewModal({
               </span>
               <div className="flex flex-wrap gap-2.5">
                 {previews.map((item, index) => (
-                  <div key={item.url} className="relative h-16 w-24 overflow-hidden bg-cream">
+                  <div key={item.url} className="relative h-16 w-24 overflow-hidden bg-bg">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.url} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removePreview(index)}
                       disabled={submitting}
-                      className="absolute right-1 top-1 rounded-full bg-white/90 p-0.5 text-text-primary shadow-sm"
+                      className="absolute right-1 top-1 rounded-full bg-surface p-0.5 text-text-primary"
                       aria-label="Remove photo"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -174,7 +174,7 @@ export default function ReviewModal({
                     type="button"
                     disabled={submitting}
                     onClick={() => fileRef.current?.click()}
-                    className="flex h-16 w-24 flex-col items-center justify-center gap-1 border border-dashed border-border-hairline bg-cream text-text-secondary transition hover:border-forest/30 hover:bg-sage-light"
+                    className="flex h-16 w-24 flex-col items-center justify-center gap-1 border border-dashed border-line bg-bg text-text-secondary transition hover:border-line-hi/30 hover:bg-surface-2"
                   >
                     <ImagePlus className="h-5 w-5" />
                     <span className="text-[10px] font-medium">Add</span>
@@ -194,7 +194,7 @@ export default function ReviewModal({
             {message ? <p className="text-sm font-medium text-error">{message}</p> : null}
           </div>
 
-          <div className="border-t border-border-hairline px-6 py-4">
+          <div className="border-t border-line px-6 py-4">
             <button type="submit" disabled={submitting} className="vj-btn vj-btn-primary h-12 w-full text-sm disabled:pointer-events-none disabled:opacity-60">
               {submitting ? "Publishing…" : "Submit review"}
             </button>

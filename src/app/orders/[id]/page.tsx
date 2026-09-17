@@ -40,10 +40,10 @@ function statusLabel(status?: string) {
 }
 
 function statusClass(status?: string) {
-  if (status === "delivered") return "bg-emerald-50 text-emerald-700";
-  if (status === "shipped" || status === "processing" || status === "paid") return "bg-sage-light text-forest";
-  if (status === "failed" || status === "cancelled") return "bg-red-50 text-error";
-  return "bg-cream text-text-secondary";
+  if (status === "delivered") return "bg-surface-2 text-ink";
+  if (status === "shipped" || status === "processing" || status === "paid") return "bg-surface-2 text-ink";
+  if (status === "failed" || status === "cancelled") return "bg-surface text-error";
+  return "bg-bg text-text-secondary";
 }
 
 function formatOrderDate(value?: string) {
@@ -160,7 +160,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   if (!hydrated || !token) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Checking account…</p>
       </div>
     );
@@ -169,7 +169,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Loading order…</p>
       </div>
     );
@@ -178,8 +178,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   if (error || !order) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-[2rem] bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-error">
+        <div className="rounded-2xl bg-surface p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface text-error">
             <XCircle className="h-8 w-8" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary">Order not found</h3>
@@ -201,7 +201,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <div>
           <Link
             href="/orders"
-            className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-forest transition hover:underline"
+            className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-ink transition hover:underline"
           >
             <ArrowLeft className="h-4 w-4" /> All orders
           </Link>
@@ -227,10 +227,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      <section className="rounded-[1.75rem] bg-white p-5 shadow-sm sm:p-6">
-        <p className="mb-5 text-[11px] font-semibold uppercase tracking-wider text-accent">Order status</p>
+      <section className="rounded-2xl bg-surface p-5 sm:p-6">
+        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Order status</p>
         {isTerminalFail ? (
-          <div className="flex items-start gap-3 rounded-2xl bg-red-50 px-4 py-4 text-sm text-error">
+          <div className="flex items-start gap-3 rounded-2xl bg-surface px-4 py-4 text-sm text-error">
             <XCircle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p className="font-semibold">This order was {order.status}</p>
@@ -243,9 +243,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         ) : (
           <>
-            <div className="mb-5 hidden h-1.5 overflow-hidden rounded-full bg-sage-light sm:block">
+            <div className="mb-5 hidden h-1.5 overflow-hidden rounded-full bg-surface-2 sm:block">
               <div
-                className="h-full rounded-full bg-forest transition-all"
+                className="h-full rounded-full bg-surface-2 transition-all"
                 style={{ width: `${Math.max(0, ((currentStep + 1) / STEPS.length) * 100)}%` }}
               />
             </div>
@@ -257,7 +257,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <li key={step.id} className="flex flex-col items-center text-center">
                   <span
                     className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
-                      done ? "bg-forest text-on-dark" : "bg-sage-light text-text-secondary"
+                      done ? "bg-surface-2 text-on-dark" : "bg-surface-2 text-text-secondary"
                     } ${active ? "ring-4 ring-forest/15" : ""}`}
                   >
                     {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : index + 1}
@@ -276,22 +276,22 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-8">
           <section className="space-y-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-accent">Items</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Items</h2>
             {(order.items || []).map((item, idx) => {
               const productKey = item.productId || item.sku;
               const eligibility = productKey ? eligibilityByProduct[productKey] : undefined;
               return (
               <article
                 key={`${item.productId || item.sku || item.name}-${idx}`}
-                className="flex flex-col gap-3 rounded-[1.5rem] bg-white p-4 shadow-sm sm:flex-row sm:items-center"
+                className="flex flex-col gap-3 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center"
               >
                 <div className="flex flex-1 gap-4 sm:items-center">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream p-2">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-bg p-2">
                   {item.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.image} alt="" className="max-h-full max-w-full object-contain" />
                   ) : (
-                    <Package className="h-7 w-7 text-forest" />
+                    <Package className="h-7 w-7 text-ink" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -310,8 +310,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
                 </div>
                 {order.status === "delivered" && productKey && eligibility?.alreadyReviewed ? (
-                  <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-sage-light px-3 text-xs font-medium text-forest sm:ml-2">
-                    <Star className="h-3.5 w-3.5 fill-accent text-accent" /> Reviewed
+                  <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface-2 px-3 text-xs font-medium text-ink sm:ml-2">
+                    <Star className="h-3.5 w-3.5 fill-ink text-ink" /> Reviewed
                   </span>
                 ) : order.status === "delivered" && productKey ? (
                   <button
@@ -327,8 +327,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             })}
           </section>
 
-          <section className="rounded-[1.75rem] bg-white p-5 shadow-sm sm:p-6">
-            <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-accent">
+          <section className="rounded-2xl bg-surface p-5 sm:p-6">
+            <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">
               <MapPin className="h-3.5 w-3.5" /> Shipping address
             </p>
             {address ? (
@@ -363,7 +363,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         <div className="sticky top-24 space-y-4 lg:col-span-4">
-          <section className="rounded-[1.75rem] bg-white p-6 shadow-sm">
+          <section className="rounded-2xl bg-surface p-6">
             <h2 className="mb-5 text-lg font-semibold text-text-primary">Order summary</h2>
             <div className="space-y-3 text-sm text-text-secondary">
               <div className="flex justify-between">
@@ -371,14 +371,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <span className="font-semibold tabular-nums text-text-primary">{formatINR(order.subtotal)}</span>
               </div>
               {Number(order.discount) > 0 ? (
-                <div className="flex justify-between text-accent">
+                <div className="flex justify-between text-ink">
                   <span>{order.offerTitle || "Offer"}{order.offerPercent ? ` · ${order.offerPercent}% off` : ""}</span>
                   <span className="font-semibold tabular-nums">-{formatINR(Number(order.discount) || 0)}</span>
                 </div>
               ) : null}
               <div className="flex justify-between">
                 <span className="inline-flex items-center gap-1">
-                  <Truck className="h-3.5 w-3.5 text-accent" /> Freight
+                  <Truck className="h-3.5 w-3.5 text-ink-mute" /> Freight
                 </span>
                 <span className="font-semibold tabular-nums text-text-primary">{formatINR(order.freight)}</span>
               </div>
@@ -386,7 +386,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <span>GST (18%)</span>
                 <span className="font-semibold tabular-nums text-text-primary">{formatINR(order.gst)}</span>
               </div>
-              <div className="border-t border-border-hairline pt-4">
+              <div className="border-t border-line pt-4">
                 <span className="block text-[10px] font-medium uppercase tracking-wider text-text-secondary">
                   Total paid
                 </span>
@@ -395,8 +395,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
 
-          <section className="rounded-[1.75rem] bg-white p-6 shadow-sm">
-            <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-accent">
+          <section className="rounded-2xl bg-surface p-6">
+            <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">
               <CreditCard className="h-3.5 w-3.5" /> Payment
             </p>
             <div className="space-y-2 text-sm">
@@ -412,7 +412,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
             <p className="mt-4 flex items-center gap-1.5 text-[11px] text-text-secondary">
-              <ShieldCheck className="h-4 w-4 text-success-green" /> Encrypted checkout
+              <ShieldCheck className="h-4 w-4 text-ink-mute" /> Encrypted checkout
             </p>
           </section>
 

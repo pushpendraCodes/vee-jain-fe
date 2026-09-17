@@ -133,7 +133,7 @@ export default function HeroField({ className = "" }: Props) {
     <div ref={wrapRef} className={`pointer-events-none absolute inset-0 ${className}`} aria-hidden>
       <canvas ref={canvasRef} className="h-full w-full" />
       <div className="absolute inset-0 sci-grid opacity-30" />
-      <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sage/20 blur-3xl animate-float md:h-80 md:w-80" />
+      <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-2 blur-3xl animate-float md:h-80 md:w-80" />
     </div>
   );
 }

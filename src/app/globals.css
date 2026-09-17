@@ -2,6 +2,22 @@
 
 @theme inline {
   /* Vee Jain — Premium Editorial / Forest-Green + Ivory */
+  /* Semantic aliases used across components */
+  --color-bg: var(--color-bg-base);
+  --color-surface: var(--color-surface-card);
+  --color-surface-2: var(--color-surface-card-alt);
+  --color-line: var(--color-border-hairline);
+  --color-line-hi: var(--color-outline);
+  --color-ink: var(--color-text-primary);
+  --color-ink-mute: var(--color-text-secondary);
+  --color-ink-dim: var(--color-text-on-light-sub);
+  --color-brand: var(--color-accent);
+  --color-brand-hi: var(--color-accent-deep);
+  --color-brand-ink: var(--color-on-primary);
+  --color-success-green: #4a9b6e;
+  --shadow-card: 0 4px 20px rgba(26, 43, 30, 0.08);
+  --shadow-card-hover: 0 16px 48px rgba(26, 43, 30, 0.12);
+
   --color-bg-base: #faf8f5;
   --color-bg-elevated: #f2ede7;
   --color-bg-dark: #2b3a2e;
@@ -387,27 +403,38 @@ select,
 
 /* ─── Product Cards ─── */
 .product-card {
-  background: var(--color-surface-card);
-  color: var(--color-text-on-light);
-  border-radius: 1.75rem;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: 1.25rem;
   height: 100%;
-  border: 1px solid rgba(26, 43, 30, 0.05);
-  box-shadow: 0 4px 20px var(--color-shadow);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
   transition:
     transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease;
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 48px rgba(26, 43, 30, 0.12);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-line-hi);
 }
 
 .product-card-media {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(184, 196, 168, 0.2), transparent 60%),
-    linear-gradient(180deg, #f7f4f0 0%, #eae5de 100%);
-  border-radius: 1.75rem 1.75rem 0 0;
+  background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-surface-2) 100%);
+  border-radius: 1.25rem 1.25rem 0 0;
+}
+
+.product-card[data-view="list"] {
+  flex-direction: row;
+}
+
+.product-card[data-view="list"] .product-card-media {
+  border-radius: 1.25rem 0 0 1.25rem;
+  width: 40%;
+  min-width: 180px;
+  max-width: 280px;
 }
 
 .premium-card {
@@ -553,6 +580,38 @@ select,
   to { transform: translateX(-50%); }
 }
 
+@keyframes cartPlusBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 4px) scale(0.7);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -42px) scale(1);
+  }
+}
+
+@keyframes cartBadgePop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.35); }
+  70% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.cart-plus-burst {
+  animation: cartPlusBurst 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  will-change: transform, opacity;
+}
+
+.cart-badge-pop {
+  animation: cartBadgePop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .animate-marquee {
   width: max-content;
   animation: marquee 55s linear infinite;
@@ -640,6 +699,8 @@ select,
   .animate-fade-in,
   .animate-slide-in-right,
   .animate-float,
+  .cart-plus-burst,
+  .cart-badge-pop,
   .card-3d-inner,
   .premium-card,
   .product-card,

@@ -10,7 +10,7 @@ export type DyeColor =
   | "brown"
   | "white";
 export type Gender = "male" | "female" | "other" | "";
-export type PaymentMethod = "razorpay" | "upi" | "netbanking" | "rtgs";
+export type PaymentMethod = "razorpay" | "upi" | "netbanking" | "rtgs" | "credit";
 export type OrderStatus =
   | "pending"
   | "created"
@@ -29,6 +29,18 @@ export interface VolumeTier {
   label?: string;
 }
 
+export interface ProductVariant {
+  id: string;
+  size?: string;
+  shade?: string;
+  /** Display label (size + shade). */
+  name: string;
+  sku?: string;
+  price: number;
+  stock: number;
+  images?: Array<{ url: string; publicId?: string } | string>;
+}
+
 export interface Product {
   id: string;
   _id?: string;
@@ -40,17 +52,19 @@ export interface Product {
   division: string;
   color: DyeColor;
   colorHex: string;
-  purity: number;
+  purity?: number;
   price: number;
   unit: string;
   stockKg: number;
+  stockAlertLimit?: number;
   status: StockStatus;
   grade: string;
   description: string;
   image: string;
   images?: string[];
-  packing: string;
+  packing?: string;
   featured?: boolean;
+  variants?: ProductVariant[];
   volumeTiers?: VolumeTier[];
   applications?: string;
   storage?: string;
@@ -68,6 +82,7 @@ export interface Product {
 
 export interface CartItem {
   productId: string;
+  variantId?: string;
   quantity: number;
 }
 
@@ -128,6 +143,7 @@ export interface EducationVideo {
   category: string;
   thumbnail: string;
   videoUrl?: string;
+  youtubeId?: string;
   mesh?: string;
   inkType?: string;
 }

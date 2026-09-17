@@ -5,16 +5,16 @@ export const BANNER_SPECS = {
 } as const;
 
 export const BANNER_SHELL = {
-  home: "relative w-full overflow-hidden bg-[#0a1a0d]",
-  shop: "relative w-full overflow-hidden bg-[#0a1a0d]",
+  home: "relative w-full overflow-hidden bg-bg",
+  shop: "relative w-full overflow-hidden bg-bg",
 } as const;
 
 export const BANNER_FRAME = {
-  home: "relative w-full overflow-hidden bg-[#0a1a0d]",
-  shop: "relative w-full overflow-hidden bg-[#0a1a0d]",
+  home: "relative w-full overflow-hidden bg-bg",
+  shop: "relative w-full overflow-hidden bg-bg",
 } as const;
 
 export const BANNER_SKELETON = {
-  home: "relative w-full overflow-hidden aspect-[1920/900] bg-[#0a1a0d]",
-  shop: "relative w-full overflow-hidden aspect-[1920/480] bg-[#0a1a0d]",
+  home: "relative w-full overflow-hidden aspect-[1920/900] bg-bg",
+  shop: "relative w-full overflow-hidden aspect-[1920/480] bg-bg",
 } as const;

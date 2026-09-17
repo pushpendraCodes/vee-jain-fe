@@ -3,7 +3,7 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/ui/Icon";
-import { ApiError, createOrder, fetchOffers, fetchProducts, verifyPayment } from "@/lib/api";
+import { ApiError, createOrder, fetchMyCredit, fetchOffers, fetchProducts, verifyCredit, verifyPayment } from "@/lib/api";
 import { cartClear } from "@/lib/cartActions";
 import { formatINR } from "@/lib/format";
 import { unitPriceForQty } from "@/lib/pricing";
@@ -71,6 +71,8 @@ export default function CheckoutPage() {
   const [offerId, setOfferId] = useState("");
   const [showExtras, setShowExtras] = useState(false);
   const [showItems, setShowItems] = useState(false);
+  const [creditAvailable, setCreditAvailable] = useState<number | null>(null);
+  const [creditStatus, setCreditStatus] = useState("");
   const submitting = useRef(false);
   const [form, setForm] = useState({
     email: "",
@@ -106,6 +108,31 @@ export default function CheckoutPage() {
     }));
     if (user.company?.name || user.address?.line2) setShowExtras(true);
   }, [user]);
+
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    fetchMyCredit(token)
+      .then((data) => {
+        if (cancelled) return;
+        if (data.account?.status === "active") {
+          setCreditAvailable(data.account.available);
+          setCreditStatus("active");
+        } else {
+          setCreditAvailable(null);
+          setCreditStatus(data.account?.status || "");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCreditAvailable(null);
+          setCreditStatus("");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
     let cancelled = false;
@@ -159,16 +186,26 @@ export default function CheckoutPage() {
   const gst = (Math.max(0, subtotal - discount) + freight) * GST_RATE;
   const total = Math.max(0, subtotal - discount) + freight + gst;
 
-  const methods = useMemo(
-    () =>
-      [
-        { id: "razorpay", title: "Credit / Debit Card", short: "Card", desc: "Visa, MasterCard, RuPay — via Razorpay", icon: "credit_card" },
-        { id: "upi", title: "UPI (GPay, PhonePe, Paytm)", short: "UPI", desc: "Pay instantly using UPI ID or QR Code", icon: "qr_code_scanner" },
-        { id: "netbanking", title: "Net Banking", short: "Net banking", desc: "All major Indian banks supported", icon: "account_balance" },
-        { id: "rtgs", title: "NEFT / RTGS (Offline Transfer)", short: "NEFT / RTGS", desc: "Proforma invoice generated. Order processed upon realization.", icon: "corporate_fare" },
-      ] as const,
-    []
-  );
+  const methods = useMemo(() => {
+    const rows: Array<{ id: PaymentMethod; title: string; short: string; desc: string; icon: string }> = [
+      { id: "razorpay", title: "Credit / Debit Card", short: "Card", desc: "Visa, MasterCard, RuPay — via Razorpay", icon: "credit_card" },
+      { id: "upi", title: "UPI (GPay, PhonePe, Paytm)", short: "UPI", desc: "Pay instantly using UPI ID or QR Code", icon: "qr_code_scanner" },
+      { id: "netbanking", title: "Net Banking", short: "Net banking", desc: "All major Indian banks supported", icon: "account_balance" },
+      { id: "rtgs", title: "NEFT / RTGS (Offline Transfer)", short: "NEFT / RTGS", desc: "Proforma invoice generated. Order processed upon realization.", icon: "corporate_fare" },
+    ];
+    if (creditStatus === "active") {
+      rows.push({
+        id: "credit",
+        title: "Business Credit",
+        short: "Credit",
+        desc: creditAvailable != null
+          ? `Charge your approved account · ${formatINR(creditAvailable)} available`
+          : "Charge this order to your approved business credit account",
+        icon: "account_balance_wallet",
+      });
+    }
+    return rows;
+  }, [creditStatus, creditAvailable]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -201,6 +238,9 @@ export default function CheckoutPage() {
     };
 
     try {
+      if (method === "credit") {
+        await verifyCredit(token, total);
+      }
       const data = await createOrder(token, payload);
       const payment = data.payment;
 
@@ -315,15 +355,15 @@ export default function CheckoutPage() {
         <div className="mb-3 flex items-center justify-between md:mb-8">
           <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary md:text-3xl lg:text-4xl">Checkout</h1>
           <span className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
-            <Icon name="lock" fill className="text-forest" /> Secure Checkout
+            <Icon name="lock" fill className="text-ink" /> Secure Checkout
           </span>
         </div>
 
         <div className="flex flex-col gap-3 md:gap-8 lg:flex-row">
           <div className="flex flex-1 flex-col gap-3 md:gap-8">
-            <section className="rounded-2xl bg-white p-4 shadow-sm md:rounded-[1.75rem] md:p-6">
-              <div className="mb-3 flex items-center gap-2 border-b border-border-hairline pb-2 md:mb-6 md:gap-3 md:pb-3">
-                <Icon name="local_shipping" className="text-forest" />
+            <section className="rounded-2xl bg-surface p-4 md:rounded-2xl md:p-6">
+              <div className="mb-3 flex items-center gap-2 border-b border-line pb-2 md:mb-6 md:gap-3 md:pb-3">
+                <Icon name="local_shipping" className="text-ink" />
                 <h2 className="text-base font-semibold text-text-primary md:text-lg">Your details</h2>
               </div>
               <div className="grid grid-cols-2 gap-2.5 md:gap-4">
@@ -363,7 +403,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={() => setShowExtras((v) => !v)}
-                className="mt-2 text-xs font-medium text-accent md:mt-3"
+                className="mt-2 text-xs font-medium text-ink-mute md:mt-3"
               >
                 {showExtras ? "Hide extra fields" : "Add company / address line 2"}
               </button>
@@ -382,15 +422,15 @@ export default function CheckoutPage() {
             </section>
 
             {availableOffers.length ? (
-              <section className="rounded-2xl bg-white p-4 shadow-sm md:rounded-[1.75rem] md:p-6">
-                <div className="mb-2 flex items-center gap-2 border-b border-border-hairline pb-2 md:mb-5 md:gap-3 md:pb-3">
-                  <Icon name="sell" className="text-forest" />
+              <section className="rounded-2xl bg-surface p-4 md:rounded-2xl md:p-6">
+                <div className="mb-2 flex items-center gap-2 border-b border-line pb-2 md:mb-5 md:gap-3 md:pb-3">
+                  <Icon name="sell" className="text-ink" />
                   <h2 className="text-base font-semibold text-text-primary md:text-lg">Offers</h2>
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 md:block md:space-y-3 md:overflow-visible">
                   <label
                     className={`flex min-w-[140px] shrink-0 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 md:min-w-0 md:items-start md:gap-3 md:p-4 ${
-                      !offerId ? "border-forest bg-sage-light/40" : "border-border-hairline bg-cream"
+                      !offerId ? "border-line-hi bg-surface-2" : "border-line bg-bg"
                     }`}
                   >
                     <input type="radio" name="offer" checked={!offerId} onChange={() => setOfferId("")} className="accent-forest" />
@@ -400,14 +440,14 @@ export default function CheckoutPage() {
                     <label
                       key={offer.id}
                       className={`flex min-w-[170px] shrink-0 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 md:min-w-0 md:items-start md:gap-3 md:p-4 ${
-                        offerId === offer.id ? "border-forest bg-sage-light/40" : "border-border-hairline bg-cream"
+                        offerId === offer.id ? "border-line-hi bg-surface-2" : "border-line bg-bg"
                       }`}
                     >
                       <input type="radio" name="offer" checked={offerId === offer.id} onChange={() => setOfferId(offer.id)} className="accent-forest" />
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center justify-between gap-2">
                           <span className="truncate text-xs font-semibold text-text-primary md:text-sm">{offer.title}</span>
-                          <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-white">{offer.label}</span>
+                          <span className="shrink-0 rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white">{offer.label}</span>
                         </span>
                         {offer.description ? <span className="mt-1 hidden text-xs text-text-secondary md:block">{offer.description}</span> : null}
                       </span>
@@ -417,10 +457,10 @@ export default function CheckoutPage() {
               </section>
             ) : null}
 
-            <section className="rounded-2xl bg-white p-4 shadow-sm md:rounded-[1.75rem] md:p-6">
-              <div className="mb-2 flex items-center justify-between border-b border-border-hairline pb-2 md:mb-6 md:pb-3">
+            <section className="rounded-2xl bg-surface p-4 md:rounded-2xl md:p-6">
+              <div className="mb-2 flex items-center justify-between border-b border-line pb-2 md:mb-6 md:pb-3">
                 <div className="flex items-center gap-2 md:gap-3">
-                  <Icon name="payments" className="text-forest" />
+                  <Icon name="payments" className="text-ink" />
                   <h2 className="text-base font-semibold text-text-primary md:text-lg">Payment</h2>
                 </div>
               </div>
@@ -430,8 +470,8 @@ export default function CheckoutPage() {
                     key={m.id}
                     className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 md:items-start md:gap-4 md:p-4 ${
                       method === m.id
-                        ? "border-forest bg-sage-light/40 text-text-primary"
-                        : "border-border-hairline bg-cream text-text-secondary"
+                        ? "border-line-hi bg-surface-2 text-text-primary"
+                        : "border-line bg-bg text-text-secondary"
                     }`}
                   >
                     <input type="radio" name="pay" checked={method === m.id} onChange={() => setMethod(m.id)} className="accent-forest" />
@@ -439,7 +479,7 @@ export default function CheckoutPage() {
                       <div className="flex items-center justify-between gap-1">
                         <span className="text-xs font-semibold text-text-primary md:hidden">{m.short}</span>
                         <span className="hidden text-sm font-semibold text-text-primary md:inline">{m.title}</span>
-                        <Icon name={m.icon} className={`hidden md:inline ${method === m.id ? "text-forest" : "text-text-secondary"}`} />
+                        <Icon name={m.icon} className={`hidden md:inline ${method === m.id ? "text-ink" : "text-text-secondary"}`} />
                       </div>
                       <p className="mt-0.5 hidden text-xs text-text-secondary md:block">{m.desc}</p>
                     </div>
@@ -450,14 +490,14 @@ export default function CheckoutPage() {
           </div>
 
           <aside className="w-full shrink-0 lg:w-96">
-            <div className="rounded-2xl bg-white p-4 shadow-sm md:sticky md:top-24 md:rounded-[1.75rem] md:p-6">
+            <div className="rounded-2xl bg-surface p-4 md:sticky md:top-24 md:rounded-2xl md:p-6">
               <button
                 type="button"
                 onClick={() => setShowItems((v) => !v)}
-                className="mb-2 flex w-full items-center justify-between border-b border-border-hairline pb-2 text-left md:mb-6 md:pointer-events-none md:pb-3"
+                className="mb-2 flex w-full items-center justify-between border-b border-line pb-2 text-left md:mb-6 md:pointer-events-none md:pb-3"
               >
                 <h2 className="flex items-center gap-2 text-base font-semibold text-text-primary md:text-lg">
-                  <Icon name="receipt_long" className="text-forest" /> Summary
+                  <Icon name="receipt_long" className="text-ink" /> Summary
                 </h2>
                 <span className="text-xs text-text-secondary md:hidden">
                   {itemCount} item{itemCount === 1 ? "" : "s"} · {showItems ? "Hide" : "Show"}
@@ -466,7 +506,7 @@ export default function CheckoutPage() {
               <div className={`${showItems ? "mb-3 space-y-3" : "hidden"} md:mb-6 md:block md:space-y-4`}>
                 {lines.map((l) => (
                   <div key={l.productId} className="flex gap-3 md:gap-4">
-                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-cream md:h-16 md:w-16 md:rounded-xl">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-bg md:h-16 md:w-16 md:rounded-xl">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={l.product.image} alt="" className="h-full w-full object-cover" />
                     </div>
@@ -483,7 +523,7 @@ export default function CheckoutPage() {
               <div className="space-y-1.5 text-sm md:mb-6 md:space-y-3">
                 <div className="flex justify-between text-text-secondary"><span>Subtotal</span><span>{formatINR(subtotal)}</span></div>
                 {discount > 0 ? (
-                  <div className="flex justify-between text-success-green">
+                  <div className="flex justify-between text-ink-mute">
                     <span>{selectedOffer ? selectedOffer.label : "Offer"}</span>
                     <span>-{formatINR(discount)}</span>
                   </div>
@@ -491,27 +531,27 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-text-secondary"><span>Shipping</span><span>{formatINR(freight)}</span></div>
                 <div className="flex justify-between text-text-secondary"><span>GST (18%)</span><span>{formatINR(gst)}</span></div>
               </div>
-              <div className="mt-3 hidden items-end justify-between border-t border-border-hairline pt-4 md:flex">
+              <div className="mt-3 hidden items-end justify-between border-t border-line pt-4 md:flex">
                 <span className="text-lg font-semibold text-text-primary">Total</span>
                 <span className="text-2xl font-bold text-text-primary">{formatINR(total)}</span>
               </div>
               {error ? <p className="mt-2 text-sm text-error md:mb-3">{error}</p> : null}
               <button type="submit" disabled={busy} className="vj-btn vj-btn-primary mt-4 hidden h-13 w-full gap-2 py-4 md:inline-flex">
-                <Icon name="lock" /> {busy ? "Processing…" : "Pay Now"}
+                <Icon name="lock" /> {busy ? "Processing…" : method === "credit" ? "Place on credit" : "Pay Now"}
               </button>
             </div>
           </aside>
         </div>
       </div>
 
-      <div className="fixed bottom-[72px] left-0 right-0 z-40 border-t border-border-hairline bg-ivory/95 px-4 py-2.5 backdrop-blur-xl md:hidden">
+      <div className="fixed bottom-[72px] left-0 right-0 z-40 border-t border-line bg-surface px-4 py-2.5 backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <span className="block text-[10px] text-text-secondary">Total</span>
             <span className="text-lg font-bold tabular-nums text-text-primary">{formatINR(total)}</span>
           </div>
           <button type="submit" disabled={busy} className="vj-btn vj-btn-primary h-11 shrink-0 px-6">
-            <Icon name="lock" /> {busy ? "Processing…" : "Pay Now"}
+            <Icon name="lock" /> {busy ? "Processing…" : method === "credit" ? "Place on credit" : "Pay Now"}
           </button>
         </div>
       </div>

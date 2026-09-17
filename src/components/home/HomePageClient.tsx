@@ -5,11 +5,12 @@ import Link from "next/link";
 import { DIVISIONS } from "@/lib/constants";
 import { fetchCategoryCatalog, type CatalogCategory } from "@/lib/api";
 import { formatViews } from "@/lib/format";
-import { videoPoster } from "@/lib/media";
+import { youtubeIdFromUrl, youtubeThumb } from "@/lib/youtube";
 import QuickViewModal from "@/components/ui/QuickViewModal";
 import QuoteCalculator from "@/components/ui/QuoteCalculator";
 import { DyeDataCard } from "@/components/products/ProductCards";
 import HeroBanner from "@/components/site/HeroBanner";
+import HomeAboutSection from "@/components/home/HomeAboutSection";
 import { BANNER_FRAME, BANNER_SHELL } from "@/lib/bannerSpecs";
 import Reveal from "@/components/visual/Reveal";
 import Counter from "@/components/visual/Counter";
@@ -68,7 +69,7 @@ function HeroBackdrop() {
       playsInline
       preload="none"
       poster="/globe.svg"
-      className="block aspect-[1920/900] h-auto w-full object-cover object-center opacity-70 sm:opacity-80"
+      className="block aspect-[1920/900] h-auto w-full object-cover object-center"
     />
   );
 }
@@ -111,8 +112,7 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
         <div className={BANNER_FRAME.home}>
           <HeroBackdrop />
           <div className="pointer-events-none absolute inset-0 hidden md:block">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a1a0d]/85 via-[#0a1a0d]/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1a0d]/50 via-transparent to-[#0a1a0d]/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/15 to-transparent" />
           </div>
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")" }} />
         </div>
@@ -171,6 +171,9 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
         }
       />
 
+      {/* ═══ ABOUT COMPANY ═══ */}
+      <HomeAboutSection />
+
       {/* ═══ CATEGORIES ═══ */}
       <section className="bg-cream py-14 md:py-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -223,7 +226,7 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
             {filteredProducts.map((p, i) => (
               <Reveal key={p.id} delayMs={Math.min(i, 6) * 60}>
                 <DyeDataCard product={p} onQuickView={setSelectedProduct} />
@@ -288,7 +291,7 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
             {[
               { value: products.length, suffix: "+", label: "Listed Compounds", animate: true },
               { value: DIVISIONS.length, suffix: "", label: "Product Divisions", animate: true },
-              { value: products.length ? Math.max(...products.map((p) => p.purity ?? 0)).toFixed(1) : "—", suffix: products.length ? "%" : "", label: "Peak Listed Purity", animate: false },
+              { value: products.reduce((n, p) => n + (p.variants?.length || 1), 0), suffix: "", label: "Listed Variants", animate: true },
               { value: videos.length, suffix: "", label: "Technical Lessons", animate: true },
             ].map((stat) => (
               <div key={stat.label} className="rounded-[1.5rem] bg-sage-light/50 p-6 sm:p-8">
@@ -320,33 +323,33 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
                 <h2 className="font-display text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
                   Learning Center
                 </h2>
-                <p className="mt-2 text-base text-text-secondary">Short videos — title, description, and views</p>
+                <p className="mt-2 text-base text-text-secondary">Dyeing and printing videos from our team</p>
               </div>
               <Link href="/education" className="hidden text-sm font-medium text-accent link-underline sm:inline-flex">
-                Watch reels
+                Watch videos
               </Link>
             </div>
           </Reveal>
 
           {videos.length ? (
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {videos.slice(0, 8).map((v) => (
                 <Link
                   key={v.id}
-                  href={`/education#${v.slug}`}
-                  className="w-52 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg sm:w-56"
+                  href={`/education/${v.slug}`}
+                  className="group overflow-hidden rounded-xl bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  <div className="relative aspect-9/16 bg-black">
+                  <div className="relative aspect-video bg-black">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={videoPoster(v.videoUrl, v.thumbnail)} alt="" className="h-full w-full object-cover opacity-90" />
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-white shadow-lg">
+                    <img src={youtubeThumb(v.youtubeId || youtubeIdFromUrl(v.videoUrl), v.thumbnail)} alt="" className="h-full w-full object-cover" />
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/15">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
                         <Play className="ml-0.5 h-4 w-4 fill-current" />
                       </span>
                     </span>
                   </div>
                   <div className="space-y-1 p-3">
-                    <h3 className="line-clamp-1 text-sm font-semibold text-text-primary">{v.title}</h3>
+                    <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">{v.title}</h3>
                     <p className="line-clamp-2 text-xs text-text-secondary">{v.description}</p>
                     <p className="inline-flex items-center gap-1 text-[11px] text-text-secondary">
                       <Eye className="h-3 w-3 text-accent" />

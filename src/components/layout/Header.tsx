@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState, useEffect, useRef } from "react";
 import { useSite } from "@/components/site/SiteProvider";
 import { useAppSelector } from "@/store/hooks";
-import { fetchProducts } from "@/lib/api";
+import { fetchCategories, fetchProducts } from "@/lib/api";
+import { CATEGORIES, DIVISIONS } from "@/lib/constants";
 import { formatINR } from "@/lib/format";
 import type { Product } from "@/types";
 import { Search, ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
@@ -20,6 +21,8 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
+const FALLBACK_CATEGORIES = CATEGORIES.filter((name) => name !== "All Products");
+
 export default function Header() {
   const { site } = useSite();
   const pathname = usePathname();
@@ -28,11 +31,24 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const cartCount = useAppSelector((s) =>
     s.cart.items.reduce((n, i) => n + i.quantity, 0)
   );
+  const prevCartCount = useRef(cartCount);
+  const [cartBadgePop, setCartBadgePop] = useState(false);
+
+  useEffect(() => {
+    if (cartCount > prevCartCount.current) {
+      setCartBadgePop(true);
+      const t = window.setTimeout(() => setCartBadgePop(false), 450);
+      prevCartCount.current = cartCount;
+      return () => window.clearTimeout(t);
+    }
+    prevCartCount.current = cartCount;
+  }, [cartCount]);
 
   useEffect(() => {
     if (!q.trim() || q.length < 2) {
@@ -62,6 +78,22 @@ export default function Header() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCategories()
+      .then((list) => {
+        if (cancelled) return;
+        const next = list.filter((name) => name && name !== "All Products");
+        if (next.length) setCategories(next);
+      })
+      .catch(() => {
+        if (!cancelled) setCategories(FALLBACK_CATEGORIES);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -97,14 +129,12 @@ export default function Header() {
         </button>
 
         <Link href="/" className="flex min-w-0 items-center gap-2.5 pr-1 sm:gap-3">
-          {site.logo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={site.logo} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
-          ) : (
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2a2420] font-display text-[13px] font-bold tracking-tight text-[#e0a84a]">
-              VJ
-            </div>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={site.logo?.trim() || "/brand-logo.svg"}
+            alt={site.siteName}
+            className="h-11 w-11 shrink-0 rounded-xl object-contain"
+          />
           <span className="hidden min-w-0 flex-col leading-tight md:flex">
             <span className="truncate text-[15px] font-semibold tracking-tight text-white lg:text-base">
               {site.siteName}
@@ -198,7 +228,11 @@ export default function Header() {
           >
             <ShoppingBag className="h-[18px] w-[18px]" />
             {cartCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e0a84a] px-1 text-[9px] font-bold text-[#1a1512]">
+              <span
+                className={`absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e0a84a] px-1 text-[9px] font-bold text-[#1a1512] ${
+                  cartBadgePop ? "cart-badge-pop" : ""
+                }`}
+              >
                 {cartCount}
               </span>
             )}
@@ -214,6 +248,8 @@ export default function Header() {
           </Link>
         </div>
       </div>
+
+   
 
       {menuOpen && (
         <div className="absolute left-3 right-3 top-[calc(100%-4px)] z-40 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#1a1512] shadow-2xl sm:left-4 sm:right-4 lg:hidden">
@@ -242,6 +278,8 @@ export default function Header() {
                 </Link>
               );
             })}
+       
+          
             <Link
               href="/contact"
               onClick={() => setMenuOpen(false)}

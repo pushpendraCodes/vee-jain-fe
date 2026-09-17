@@ -24,9 +24,9 @@ export function StarRating({
         const fill = Math.max(0, Math.min(1, clamped - (star - 1)));
         return (
           <span key={star} className={`relative ${SIZE[size]}`}>
-            <Star className={`${SIZE[size]} fill-sage-light text-sage-light`} />
+            <Star className={`${SIZE[size]} fill-surface-2 text-ink-dim`} />
             <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
-              <Star className={`${SIZE[size]} fill-accent text-accent`} />
+              <Star className={`${SIZE[size]} fill-ink text-ink`} />
             </span>
           </span>
         );
@@ -63,7 +63,7 @@ export function StarPicker({
               className="rounded-lg p-1 transition hover:scale-110 disabled:opacity-50"
             >
               <Star
-                className={`h-8 w-8 ${active ? "fill-accent text-accent" : "fill-sage-light text-sage-light"}`}
+                className={`h-8 w-8 ${active ? "fill-ink text-ink" : "fill-surface-2 text-ink-dim"}`}
               />
             </button>
           );

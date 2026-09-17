@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchProducts } from "@/lib/api";
 import { cartRemove, cartSetQuantity } from "@/lib/cartActions";
 import { formatINR } from "@/lib/format";
-import { unitPriceForQty } from "@/lib/pricing";
+import { findVariant, unitPriceForQty } from "@/lib/pricing";
 import { FREIGHT_FLAT, GST_RATE } from "@/lib/constants";
 import { useAppSelector } from "@/store/hooks";
 import { useToast } from "@/components/ui/Toast";
@@ -48,26 +48,37 @@ export default function CartPage() {
       items
         .map((i) => {
           const product = catalog.find((p) => p.id === i.productId || p.slug === i.productId);
-          return product ? { ...i, product } : null;
+          if (!product) return null;
+          const variant = findVariant(product, i.variantId);
+          return { ...i, product, variant };
         })
-        .filter(Boolean) as { productId: string; quantity: number; product: Product }[],
+        .filter(Boolean) as Array<{
+        productId: string;
+        variantId?: string;
+        quantity: number;
+        product: Product;
+        variant: ReturnType<typeof findVariant>;
+      }>,
     [items, catalog]
   );
 
-  const subtotal = lines.reduce((n, l) => n + unitPriceForQty(l.product, l.quantity) * l.quantity, 0);
+  const subtotal = lines.reduce(
+    (n, l) => n + unitPriceForQty(l.product, l.quantity, l.variantId) * l.quantity,
+    0
+  );
   const freight = lines.length ? FREIGHT_FLAT : 0;
   const gst = (subtotal + freight) * GST_RATE;
   const total = subtotal + freight + gst;
 
-  const handleRemove = async (productId: string, name: string) => {
-    await cartRemove(productId);
+  const handleRemove = async (productId: string, name: string, variantId?: string) => {
+    await cartRemove(productId, variantId || "");
     showToast("Item Removed", `${name} was removed from your cart`, "info");
   };
 
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Loading cart…</p>
       </div>
     );
@@ -85,8 +96,8 @@ export default function CartPage() {
       </div>
 
       {lines.length === 0 ? (
-        <div className="my-6 rounded-[2rem] bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-light text-forest">
+        <div className="my-6 rounded-2xl bg-surface p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 text-ink">
             <ShoppingBag className="h-8 w-8" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary">Cart is empty</h3>
@@ -102,12 +113,12 @@ export default function CartPage() {
           <section className="space-y-3 lg:col-span-8">
             {lines.map((line) => (
               <div
-                key={line.productId}
-                className="flex flex-col gap-4 rounded-[1.5rem] bg-white p-4 shadow-sm sm:flex-row sm:items-center"
+                key={`${line.productId}:${line.variantId || ""}`}
+                className="flex flex-col gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center"
               >
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream p-2">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-bg">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={line.product.image} alt="" className="max-h-full max-w-full object-contain" />
+                  <img src={line.product.image} alt="" className="h-full w-full object-contain" />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -117,26 +128,51 @@ export default function CartPage() {
                   <h3 className="truncate text-base font-semibold text-text-primary">
                     {line.product.name}
                   </h3>
-                  <span className="font-mono text-[10px] text-text-secondary">SKU: {line.product.sku}</span>
+                  <span className="text-xs text-text-secondary">
+                    {[line.variant.size, line.variant.shade].filter(Boolean).join(" · ") || line.variant.name}
+                    {line.variant.sku ? ` · ${line.variant.sku}` : ""}
+                  </span>
                 </div>
 
                 <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
-                  <div className="flex items-center overflow-hidden rounded-full border border-border-hairline bg-ivory">
-                    <button className="flex h-9 w-9 items-center justify-center text-text-primary" onClick={() => void cartSetQuantity(line.productId, line.quantity - 1)} aria-label="Decrease">
+                  <div className="flex items-center overflow-hidden rounded-full border border-line bg-surface">
+                    <button
+                      className="flex h-9 w-9 items-center justify-center text-text-primary"
+                      onClick={() => void cartSetQuantity(line.productId, line.quantity - 1, line.variantId || "")}
+                      aria-label="Decrease"
+                    >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
                     <span className="w-8 text-center text-xs font-semibold tabular-nums text-text-primary">{line.quantity}</span>
-                    <button className="flex h-9 w-9 items-center justify-center text-text-primary" onClick={() => void cartSetQuantity(line.productId, line.quantity + 1)} aria-label="Increase">
+                    <button
+                      className="flex h-9 w-9 items-center justify-center text-text-primary"
+                      onClick={() => void cartSetQuantity(line.productId, line.quantity + 1, line.variantId || "")}
+                      aria-label="Increase"
+                    >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
                   <div className="min-w-[90px] text-right">
-                    <span className="block font-semibold tabular-nums text-text-primary">{formatINR(unitPriceForQty(line.product, line.quantity) * line.quantity)}</span>
-                    <span className="text-[10px] text-text-secondary">₹{unitPriceForQty(line.product, line.quantity)}/{line.product.unit}</span>
+                    <span className="block font-semibold tabular-nums text-text-primary">
+                      {formatINR(unitPriceForQty(line.product, line.quantity, line.variantId) * line.quantity)}
+                    </span>
+                    <span className="text-[10px] text-text-secondary">
+                      ₹{unitPriceForQty(line.product, line.quantity, line.variantId)}/{line.product.unit}
+                    </span>
                   </div>
 
-                  <button aria-label="Remove item" className="rounded-full p-2 text-text-secondary transition hover:bg-red-50 hover:text-red-600" onClick={() => handleRemove(line.productId, line.product.name)}>
+                  <button
+                    aria-label="Remove item"
+                    className="rounded-full p-2 text-text-secondary transition hover:bg-surface hover:text-ink-mute"
+                    onClick={() =>
+                      handleRemove(
+                        line.productId,
+                        `${line.product.name} · ${line.variant.name}`,
+                        line.variantId
+                      )
+                    }
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -145,7 +181,7 @@ export default function CartPage() {
           </section>
 
           <div className="sticky top-24 lg:col-span-4">
-            <section className="rounded-[1.75rem] bg-white p-6 shadow-sm">
+            <section className="rounded-2xl bg-surface p-6">
               <h2 className="mb-5 text-lg font-semibold text-text-primary">Order Summary</h2>
 
               <div className="space-y-3 text-sm text-text-secondary">
@@ -154,14 +190,14 @@ export default function CartPage() {
                   <span className="font-semibold tabular-nums text-text-primary">{formatINR(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="inline-flex items-center gap-1"><Truck className="h-3.5 w-3.5 text-accent" /> Freight</span>
+                  <span className="inline-flex items-center gap-1"><Truck className="h-3.5 w-3.5 text-ink-mute" /> Freight</span>
                   <span className="font-semibold tabular-nums text-text-primary">{formatINR(freight)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>GST (18%)</span>
                   <span className="font-semibold tabular-nums text-text-primary">{formatINR(gst)}</span>
                 </div>
-                <div className="border-t border-border-hairline pt-4">
+                <div className="border-t border-line pt-4">
                   <span className="block text-[10px] font-medium uppercase tracking-wider text-text-secondary">Total payable</span>
                   <span className="text-2xl font-bold tabular-nums text-text-primary">{formatINR(total)}</span>
                 </div>
@@ -172,7 +208,7 @@ export default function CartPage() {
               </button>
 
               <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-text-secondary">
-                <ShieldCheck className="h-4 w-4 text-success-green" /> Razorpay & UPI encrypted
+                <ShieldCheck className="h-4 w-4 text-ink-mute" /> Razorpay & UPI encrypted
               </p>
             </section>
           </div>

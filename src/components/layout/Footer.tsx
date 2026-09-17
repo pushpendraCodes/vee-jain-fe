@@ -45,12 +45,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
           <div className="space-y-4 md:col-span-4">
             <div className="flex items-center gap-2.5">
-              {site.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={site.logo} alt="" className="h-9 w-9 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">VJ</div>
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={site.logo?.trim() || "/brand-logo.svg"}
+                alt={site.siteName}
+                className="h-9 w-9 rounded-xl object-contain"
+              />
               <span className="text-lg font-semibold tracking-tight">{site.siteName}</span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-on-dark/60">

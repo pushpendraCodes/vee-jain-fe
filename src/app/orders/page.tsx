@@ -43,7 +43,7 @@ export default function OrdersPage() {
   if (!hydrated || !token) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Checking account…</p>
       </div>
     );
@@ -52,7 +52,7 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Loading orders…</p>
       </div>
     );
@@ -72,8 +72,8 @@ export default function OrdersPage() {
       {error ? <p className="text-sm text-error">{error}</p> : null}
 
       {orders.length === 0 ? (
-        <div className="my-6 rounded-[2rem] bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-light text-forest">
+        <div className="my-6 rounded-2xl bg-surface p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 text-ink">
             <Package className="h-8 w-8" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary">No orders yet</h3>
@@ -90,7 +90,7 @@ export default function OrdersPage() {
             <Link
               key={o.id}
               href={`/orders/${o.id}`}
-              className="flex items-center justify-between gap-4 rounded-[1.5rem] bg-white p-5 shadow-sm transition hover:bg-sage-light/30"
+              className="flex items-center justify-between gap-4 rounded-2xl bg-surface p-5 transition hover:bg-surface-2/30"
             >
               <div className="min-w-0">
                 <span className="block font-mono text-[10px] font-medium uppercase tracking-wider text-text-secondary">
@@ -101,7 +101,7 @@ export default function OrdersPage() {
                   {o.items?.length || 0} items · {formatINR(o.total)}
                 </p>
               </div>
-              <span className="shrink-0 rounded-full bg-sage-light px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-forest">
+              <span className="shrink-0 rounded-full bg-surface-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
                 {o.status}
               </span>
             </Link>

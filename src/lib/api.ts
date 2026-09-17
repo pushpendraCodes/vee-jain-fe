@@ -1,4 +1,5 @@
 import { API_URL } from "@/lib/constants";
+import { youtubeIdFromUrl, youtubeThumb } from "@/lib/youtube";
 import type {
   Address,
   CatalogOffer,
@@ -100,16 +101,43 @@ function galleryUrls(raw: unknown, fallback = ""): string[] {
 
 function normalizeProduct(p: Product & { _id?: string; code?: string; images?: unknown }): Product {
   const images = galleryUrls(p.images, p.image);
+  const variants = Array.isArray(p.variants)
+    ? p.variants.map((v) => {
+        const size = String(v.size || v.name || "");
+        const shade = String(v.shade || "");
+        const name = size && shade ? `${size} / ${shade}` : size || shade || String(v.name || "");
+        const images = Array.isArray(v.images)
+          ? v.images
+              .map((item) =>
+                typeof item === "string"
+                  ? { url: item }
+                  : { url: String(item?.url || ""), publicId: item?.publicId }
+              )
+              .filter((item) => item.url)
+          : [];
+        return {
+          id: String(v.id),
+          size,
+          shade,
+          name,
+          sku: String(v.sku || ""),
+          price: Number(v.price) || 0,
+          stock: Number(v.stock) || 0,
+          images,
+        };
+      })
+    : [];
   return {
     ...p,
     id: String(p.code || p.id || p._id || p.slug),
     _id: String(p._id || ""),
     color: (p.color || "blue") as Product["color"],
     colorHex: p.colorHex || "#2563eb",
-    purity: Number(p.purity ?? 95),
+    purity: Number(p.purity ?? 0),
     price: Number(p.price ?? 0),
     unit: p.unit || "kg",
     stockKg: Number(p.stockKg ?? 0),
+    stockAlertLimit: Number(p.stockAlertLimit ?? 50),
     status: p.status || "in-stock",
     grade: p.grade || "",
     description: p.description || "",
@@ -118,7 +146,8 @@ function normalizeProduct(p: Product & { _id?: string; code?: string; images?: u
     packing: p.packing || "",
     division: p.division || "chemicals",
     category: p.category || "",
-    volumeTiers: Array.isArray(p.volumeTiers) ? p.volumeTiers : [],
+    variants,
+    volumeTiers: [],
     applications: p.applications || "",
     storage: p.storage || "",
     safety: p.safety || "",
@@ -130,6 +159,7 @@ function normalizeProduct(p: Product & { _id?: string; code?: string; images?: u
 }
 
 function normalizeVideo(v: EducationVideo & { _id?: string }): EducationVideo {
+  const youtubeId = v.youtubeId || youtubeIdFromUrl(v.videoUrl);
   return {
     ...v,
     id: String(v.id || v._id || v.slug),
@@ -138,8 +168,10 @@ function normalizeVideo(v: EducationVideo & { _id?: string }): EducationVideo {
     views: Number(v.views || 0),
     tier: (v.tier || "Guide") as EducationVideo["tier"],
     category: v.category || "Guide",
-    thumbnail: v.thumbnail || "",
+    thumbnail: youtubeThumb(youtubeId, v.thumbnail || ""),
     description: v.description || "",
+    youtubeId,
+    videoUrl: v.videoUrl || (youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : ""),
   };
 }
 
@@ -368,6 +400,8 @@ export async function updateAvatar(token: string, file: File) {
 
 export type ApiCartLine = {
   productId: string;
+  variantId?: string;
+  variantName?: string;
   slug?: string;
   name: string;
   sku: string;
@@ -395,26 +429,28 @@ export async function fetchCart(token: string) {
   return data.cart;
 }
 
-export async function addCartItem(token: string, productId: string, quantity = 1) {
+export async function addCartItem(token: string, productId: string, quantity = 1, variantId = "") {
   const data = await request<{ cart: ApiCart }>("/cart/items", {
     method: "POST",
     token,
-    body: { productId, quantity },
+    body: { productId, quantity, variantId },
   });
   return data.cart;
 }
 
-export async function updateCartItem(token: string, productId: string, quantity: number) {
-  const data = await request<{ cart: ApiCart }>(`/cart/items/${encodeURIComponent(productId)}`, {
+export async function updateCartItem(token: string, productId: string, quantity: number, variantId = "") {
+  const qs = variantId ? `?variantId=${encodeURIComponent(variantId)}` : "";
+  const data = await request<{ cart: ApiCart }>(`/cart/items/${encodeURIComponent(productId)}${qs}`, {
     method: "PATCH",
     token,
-    body: { quantity },
+    body: { quantity, variantId },
   });
   return data.cart;
 }
 
-export async function removeCartItem(token: string, productId: string) {
-  const data = await request<{ cart: ApiCart }>(`/cart/items/${encodeURIComponent(productId)}`, {
+export async function removeCartItem(token: string, productId: string, variantId = "") {
+  const qs = variantId ? `?variantId=${encodeURIComponent(variantId)}` : "";
+  const data = await request<{ cart: ApiCart }>(`/cart/items/${encodeURIComponent(productId)}${qs}`, {
     method: "DELETE",
     token,
   });
@@ -478,6 +514,38 @@ export async function fetchMyOrders(token: string) {
 export async function fetchOrder(token: string, id: string) {
   const data = await request<{ order: Order }>(`/orders/${encodeURIComponent(id)}`, { token });
   return data.order;
+}
+
+export type CreditAccountPayload = {
+  account: {
+    id: string;
+    accountNumber: string;
+    creditLimit: number;
+    balance: number;
+    available: number;
+    utilization: number;
+    creditDays: number;
+    status: string;
+    transactions: Array<{
+      id: string;
+      type: string;
+      amount: number;
+      balance: number;
+      description: string;
+      reference: string;
+      createdAt?: string;
+    }>;
+  } | null;
+  customer: { id: string; customerId: string } | null;
+  available?: number;
+};
+
+export async function fetchMyCredit(token: string) {
+  return request<CreditAccountPayload>("/credit/me", { token });
+}
+
+export async function verifyCredit(token: string, amount: number) {
+  return request<CreditAccountPayload>("/credit/verify", { method: "POST", token, body: { amount } });
 }
 
 /* ── Notifications ── */

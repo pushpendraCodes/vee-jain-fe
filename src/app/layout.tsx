@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     "High-purity reactive dyes engineered for consistency, performance and exceptional color precision. Shop, learn, and order with OTP login and Razorpay checkout.",
   applicationName: "Vee Jain Dyes",
   manifest: "/manifest.json",
+  icons: {
+    icon: [{ url: "/brand-logo.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand-logo.svg" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -36,7 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap"
           rel="stylesheet"
         />
-        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/brand-logo.svg" />
+        <link rel="apple-touch-icon" href="/brand-logo.svg" />
       </head>
       <body className="font-sans antialiased">
         <Providers>

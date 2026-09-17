@@ -92,7 +92,7 @@ export default function NotificationsPage() {
   if (!hydrated || !token) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Checking account…</p>
       </div>
     );
@@ -101,7 +101,7 @@ export default function NotificationsPage() {
   if (loading && !items.length) {
     return (
       <div className="mx-auto max-w-7xl px-5 py-16 text-center">
-        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-sage-light" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-full bg-surface-2" />
         <p className="text-sm text-text-secondary">Loading notifications…</p>
       </div>
     );
@@ -123,7 +123,7 @@ export default function NotificationsPage() {
             <button
               type="button"
               disabled={pushBusy}
-              className="rounded-full border border-forest px-4 py-2 text-sm font-medium text-forest disabled:opacity-60"
+              className="rounded-full border border-line-hi px-4 py-2 text-sm font-medium text-ink disabled:opacity-60"
               onClick={async () => {
                 setPushBusy(true);
                 const ok = await registerWebPush(token, { prompt: true });
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
           {unread > 0 ? (
             <button
               type="button"
-              className="text-sm font-medium text-forest transition hover:underline"
+              className="text-sm font-medium text-ink transition hover:underline"
               onClick={async () => {
                 await markAllNotificationsRead(token);
                 setItems((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -153,8 +153,8 @@ export default function NotificationsPage() {
       {error ? <p className="text-sm text-error">{error}</p> : null}
 
       {items.length === 0 ? (
-        <div className="my-6 rounded-[2rem] bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sage-light text-forest">
+        <div className="my-6 rounded-2xl bg-surface p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 text-ink">
             <Bell className="h-8 w-8" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary">No notifications yet</h3>
@@ -183,14 +183,14 @@ export default function NotificationsPage() {
                   const orderId = n.data?.orderId;
                   if (typeof orderId === "string") router.push(`/orders/${orderId}`);
                 }}
-                className={`w-full rounded-[1.5rem] p-5 text-left shadow-sm transition hover:bg-sage-light/30 ${
-                  n.read ? "bg-white" : "bg-white ring-1 ring-forest/20"
+                className={`w-full rounded-2xl p-5 text-left transition hover:bg-surface-2/30 ${
+                  n.read ? "bg-surface" : "bg-surface ring-1 ring-forest/20"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-semibold text-text-primary">{n.title}</p>
                   {!n.read ? (
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-accent" aria-label="Unread" />
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand" aria-label="Unread" />
                   ) : null}
                 </div>
                 <p className="mt-1 text-sm text-text-secondary">{n.body}</p>
@@ -211,7 +211,7 @@ export default function NotificationsPage() {
                   type="button"
                   disabled={pagination.page <= 1 || loading}
                   onClick={() => goToPage(pagination.page - 1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border-hairline bg-white text-text-primary disabled:opacity-40"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-text-primary disabled:opacity-40"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -224,8 +224,8 @@ export default function NotificationsPage() {
                     onClick={() => goToPage(n)}
                     className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-semibold ${
                       n === pagination.page
-                        ? "bg-forest text-on-dark"
-                        : "border border-border-hairline bg-white text-text-primary hover:bg-sage-light"
+                        ? "bg-surface-2 text-on-dark"
+                        : "border border-line bg-surface text-text-primary hover:bg-surface-2"
                     }`}
                   >
                     {n}
@@ -235,7 +235,7 @@ export default function NotificationsPage() {
                   type="button"
                   disabled={pagination.page >= pagination.pages || loading}
                   onClick={() => goToPage(pagination.page + 1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border-hairline bg-white text-text-primary disabled:opacity-40"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-text-primary disabled:opacity-40"
                   aria-label="Next page"
                 >
                   <ChevronRight className="h-4 w-4" />

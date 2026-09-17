@@ -1,15 +1,33 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { submitQuote, ApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare, ShieldCheck, Clock } from "lucide-react";
+import { formatINR } from "@/lib/format";
 
-export default function ContactPage() {
+function ContactPageContent() {
+  const searchParams = useSearchParams();
+  const product = searchParams.get("product") || "";
+  const qty = searchParams.get("qty") || "";
+  const estimate = searchParams.get("estimate") || "";
+  const typeFromCalc = searchParams.get("type") || "";
+
+  const prefilledMessage = useMemo(() => {
+    if (!product && !qty && !estimate) return "";
+    const parts = [
+      product ? `Product / grade: ${product}` : "",
+      qty ? `Quantity: ${qty} kg` : "",
+      estimate ? `Calculator estimate: ${formatINR(Number(estimate) || 0)}` : "",
+    ].filter(Boolean);
+    return parts.length ? `${parts.join("\n")}\n\nPlease share a proforma quote.` : "";
+  }, [product, qty, estimate]);
+
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [inquiryType, setInquiryType] = useState("Bulk Purchase Quote");
-  const [formData, setFormData] = useState({ name: "", mobile: "", company: "", message: "" });
+  const [inquiryType, setInquiryType] = useState(typeFromCalc || "Bulk Purchase Quote");
+  const [formData, setFormData] = useState({ name: "", mobile: "", company: "", message: prefilledMessage });
   const { showToast } = useToast();
 
   const onSubmit = async (e: FormEvent) => {
@@ -44,9 +62,9 @@ export default function ContactPage() {
   return (
     <div className="pb-20">
       {/* Header */}
-      <section className="bg-cream pb-12 pt-12 md:pb-16 md:pt-16">
+      <section className="bg-bg pb-12 pt-12 md:pb-16 md:pt-16">
         <div className="mx-auto max-w-3xl space-y-4 px-5 text-center sm:px-6 lg:px-8">
-          <span className="inline-flex items-center rounded-full bg-sage-light px-4 py-1.5 text-xs font-medium text-forest">
+          <span className="inline-flex items-center rounded-full bg-surface-2 px-4 py-1.5 text-xs font-medium text-ink">
             Industrial Sales & Support
           </span>
           <h1 className="font-display text-3xl font-bold tracking-tight text-text-primary sm:text-5xl">
@@ -60,15 +78,15 @@ export default function ContactPage() {
 
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-          {/* Left */}
-          <div className="space-y-5 lg:col-span-5">
-            <div className="rounded-[1.75rem] bg-white p-7 shadow-sm">
-              <h3 className="mb-5 border-b border-border-hairline pb-4 text-lg font-semibold text-text-primary">
+          {/* Contact details — below form on mobile */}
+          <div className="order-2 space-y-5 lg:order-1 lg:col-span-5">
+            <div className="rounded-2xl bg-surface p-7">
+              <h3 className="mb-5 border-b border-line pb-4 text-lg font-semibold text-text-primary">
                 Direct Sales Hotline
               </h3>
               <div className="space-y-5">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 shrink-0 rounded-xl bg-sage-light p-2.5 text-forest">
+                  <div className="mt-0.5 shrink-0 rounded-xl bg-surface-2 p-2.5 text-ink">
                     <Mail className="h-4 w-4" />
                   </div>
                   <div>
@@ -77,7 +95,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 shrink-0 rounded-xl bg-sage-light p-2.5 text-forest">
+                  <div className="mt-0.5 shrink-0 rounded-xl bg-surface-2 p-2.5 text-ink">
                     <Phone className="h-4 w-4" />
                   </div>
                   <div>
@@ -86,40 +104,40 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 shrink-0 rounded-xl bg-sage-light p-2.5 text-forest">
+                  <div className="mt-0.5 shrink-0 rounded-xl bg-surface-2 p-2.5 text-ink">
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div>
                     <span className="block text-[10px] font-medium uppercase tracking-wider text-text-secondary">Factory & Lab</span>
                     <span className="block text-sm font-semibold leading-snug text-text-primary">
-                      Plot No. 45, GIDC Industrial Estate, Phase 2, Vatva, Ahmedabad 382445
+                      Plot No. 45, GIDC Industrial Estate, Phase 2, Ludhiyana Punjab 382445
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 rounded-xl bg-sage-light p-4">
-                <div className="flex items-center gap-2 text-xs font-semibold text-forest">
+              <div className="mt-6 rounded-xl bg-surface-2 p-4">
+                <div className="flex items-center gap-2 text-xs font-semibold text-ink">
                   <Clock className="h-4 w-4" /> Response Guarantee
                 </div>
                 <p className="mt-1 text-xs text-text-secondary">Quotes and MSDS data sheets dispatched within 1 hour during business hours (Mon-Sat, 9 AM – 7 PM IST).</p>
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-accent/15 bg-white p-6 shadow-sm">
+            {/* <div className="rounded-2xl border border-line bg-surface p-6">
               <h4 className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                <ShieldCheck className="h-5 w-5 text-accent" /> Quality Tested
+                <ShieldCheck className="h-5 w-5 text-ink-mute" /> Quality Tested
               </h4>
               <p className="mt-2 text-sm text-text-secondary">
                 Need a 1kg sample batch for lab testing before placing a bulk order? Request sample dispatch through our form.
               </p>
-            </div>
+            </div> */}
           </div>
 
-          {/* Right */}
-          <div className="lg:col-span-7">
-            <form onSubmit={onSubmit} className="rounded-[1.75rem] bg-white p-7 shadow-sm md:p-8">
-              <h3 className="mb-6 border-b border-border-hairline pb-4 text-lg font-semibold text-text-primary">
+          {/* Inquiry form — first on mobile */}
+          <div className="order-1 lg:order-2 lg:col-span-7">
+            <form onSubmit={onSubmit} className="rounded-2xl bg-surface p-7 md:p-8">
+              <h3 className="mb-6 border-b border-line pb-4 text-lg font-semibold text-text-primary">
                 Send Official Inquiry
               </h3>
 
@@ -127,15 +145,15 @@ export default function ContactPage() {
                 <div>
                   <label className="industrial-label">Inquiry Type</label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {["Bulk Purchase Quote", "1kg Sample Request", "Technical Support (TDS)", "Custom Synthesis", "Distributor Partnership"].map((type) => (
+                    {["Bulk Purchase Quote", " Sample Request"].map((type) => (
                       <button
                         key={type}
                         type="button"
                         onClick={() => setInquiryType(type)}
                         className={`rounded-full border p-2.5 text-center text-xs font-medium transition ${
                           inquiryType === type
-                            ? "border-forest bg-forest text-on-dark"
-                            : "border-border-hairline text-text-secondary hover:bg-sage-light"
+                            ? "border-line-hi bg-surface-2 text-on-dark"
+                            : "border-line text-text-secondary hover:bg-surface-2"
                         }`}
                       >
                         {type}
@@ -203,5 +221,13 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-text-muted">Loading…</div>}>
+      <ContactPageContent />
+    </Suspense>
   );
 }

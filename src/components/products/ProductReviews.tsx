@@ -151,13 +151,13 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
 
   return (
     <section id="reviews" className="scroll-mt-28">
-      <div className="rounded-[1.75rem] bg-white p-6 shadow-sm sm:p-8">
+      <div className="rounded-2xl bg-surface p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-text-secondary">Customer reviews</p>
             <h2 className="mt-1 font-display text-2xl font-bold text-text-primary">What buyers say</h2>
             {loading ? (
-              <div className="mt-4 h-10 w-40 animate-pulse rounded-full bg-cream" />
+              <div className="mt-4 h-10 w-40 animate-pulse rounded-full bg-bg" />
             ) : summary.count > 0 ? (
               <div className="mt-4 flex items-center gap-3">
                 <span className="text-4xl font-semibold tabular-nums text-text-primary">{summary.average.toFixed(1)}</span>
@@ -190,17 +190,17 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
         </div>
 
         {summary.count > 0 && (
-          <div className="mt-8 space-y-2 border-t border-border-hairline pt-6">
+          <div className="mt-8 space-y-2 border-t border-line pt-6">
             {[5, 4, 3, 2, 1].map((star) => {
               const count = summary.distribution[star as 1 | 2 | 3 | 4 | 5] || 0;
               return (
                 <div key={star} className="flex items-center gap-3 text-xs text-text-secondary">
                   <span className="flex w-10 items-center gap-1 tabular-nums">
-                    {star} <Star className="h-3 w-3 fill-accent text-accent" />
+                    {star} <Star className="h-3 w-3 fill-ink text-ink" />
                   </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-cream">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg">
                     <div
-                      className="h-full rounded-full bg-accent"
+                      className="h-full rounded-full bg-brand"
                       style={{ width: `${(count / maxBar) * 100}%` }}
                     />
                   </div>
@@ -214,14 +214,14 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
         <div className="mt-8 space-y-4">
           {loading && (
             <div className="space-y-3">
-              <div className="h-28 animate-pulse rounded-2xl bg-cream" />
-              <div className="h-28 animate-pulse rounded-2xl bg-cream" />
+              <div className="h-28 animate-pulse rounded-2xl bg-bg" />
+              <div className="h-28 animate-pulse rounded-2xl bg-bg" />
             </div>
           )}
 
           {!loading && reviews.length === 0 && (
-            <div className="rounded-[1.5rem] bg-cream px-6 py-10 text-center">
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-forest">
+            <div className="rounded-2xl bg-bg px-6 py-10 text-center">
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-surface text-ink">
                 <Star className="h-6 w-6" />
               </div>
               <h3 className="text-base font-semibold text-text-primary">Waiting for the first review</h3>
@@ -232,7 +232,7 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
           )}
 
           {reviews.map((review) => (
-            <article key={review.id} className="rounded-2xl bg-cream p-5">
+            <article key={review.id} className="rounded-2xl bg-bg p-5">
               <div className="flex items-start gap-3">
                 {review.user.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -242,7 +242,7 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
                     className="h-11 w-11 shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-forest text-xs font-semibold text-on-dark">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-xs font-semibold text-on-dark">
                     {initials(review.user.name)}
                   </span>
                 )}
@@ -250,12 +250,12 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-sm font-semibold text-text-primary">{review.user.name}</h3>
                     {review.verifiedPurchase && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-success-green">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[10px] font-medium text-ink-mute">
                         <BadgeCheck className="h-3 w-3" /> Verified purchase
                       </span>
                     )}
                     {review.mine && (
-                      <span className="rounded-full bg-sage-light px-2 py-0.5 text-[10px] font-medium text-forest">
+                      <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-ink">
                         Your review
                       </span>
                     )}
@@ -274,7 +274,7 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
                           key={src}
                           type="button"
                           onClick={() => setLightbox(src)}
-                          className="h-16 w-24 overflow-hidden bg-white"
+                          className="h-16 w-24 overflow-hidden bg-surface"
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={src} alt="Review photo" className="h-full w-full object-cover" />
@@ -304,11 +304,11 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
           <button type="button" className="fixed inset-0 bg-black/60" aria-label="Close photo" onClick={() => setLightbox(null)} />
           <div className="relative z-10 max-h-[90vh] max-w-3xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lightbox} alt="Review photo" className="max-h-[90vh] object-contain shadow-2xl" />
+            <img src={lightbox} alt="Review photo" className="max-h-[90vh] object-contain" />
             <button
               type="button"
               onClick={() => setLightbox(null)}
-              className="absolute -right-2 -top-2 rounded-full bg-white p-2 text-text-primary shadow"
+              className="absolute -right-2 -top-2 rounded-full bg-surface p-2 text-text-primary shadow"
               aria-label="Close"
             >
               <X className="h-4 w-4" />

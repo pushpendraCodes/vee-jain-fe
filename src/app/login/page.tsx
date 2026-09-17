@@ -218,7 +218,7 @@ function LoginForm() {
       <p className="mb-6 text-base text-text-secondary">Register with your mobile number. We&apos;ll send a one-time OTP.</p>
 
       {step === "phone" && (
-        <form onSubmit={sendOtpHandler} className="space-y-5 rounded-[1.75rem] bg-white p-6 shadow-sm sm:p-8" noValidate>
+        <form onSubmit={sendOtpHandler} className="space-y-5 rounded-2xl bg-surface p-6 sm:p-8" noValidate>
           <div>
             <FieldLabel htmlFor="login-phone" required>
               Mobile Number
@@ -250,9 +250,9 @@ function LoginForm() {
       )}
 
       {step === "otp" && (
-        <form onSubmit={verifyOtpHandler} className="space-y-5 rounded-[1.75rem] bg-white p-6 shadow-sm sm:p-8" noValidate>
+        <form onSubmit={verifyOtpHandler} className="space-y-5 rounded-2xl bg-surface p-6 sm:p-8" noValidate>
           <p className="text-sm text-text-secondary">OTP sent to +91 {phone}</p>
-          {devOtp ? <p className="text-sm font-semibold text-accent">Dev OTP: {devOtp}</p> : null}
+          {devOtp ? <p className="text-sm font-semibold text-ink-mute">Dev OTP: {devOtp}</p> : null}
           <div>
             <FieldLabel htmlFor="login-otp" required>
               Enter OTP
@@ -280,12 +280,12 @@ function LoginForm() {
       )}
 
       {step === "details" && (
-        <form onSubmit={completeProfileHandler} className="rounded-[1.75rem] bg-white p-6 shadow-sm sm:p-8" noValidate>
+        <form onSubmit={completeProfileHandler} className="rounded-2xl bg-surface p-6 sm:p-8" noValidate>
           <p className="mb-5 text-sm font-medium text-text-primary">Complete your buyer profile to continue.</p>
 
           <div className="grid gap-5 lg:grid-cols-2">
             <section className="space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Personal details</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Personal details</p>
               <div>
                 <FieldLabel htmlFor="full-name" required>
                   Full Name
@@ -314,7 +314,7 @@ function LoginForm() {
             </section>
 
             <section className="space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Company details</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Company details</p>
               <div>
                 <FieldLabel htmlFor="company-name">
                   Company / GST registered name
@@ -340,7 +340,7 @@ function LoginForm() {
           </div>
 
           <section className="mt-5 space-y-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Address</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-dim">Address</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <FieldLabel htmlFor="line1" required>

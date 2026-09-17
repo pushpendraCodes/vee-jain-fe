@@ -132,15 +132,15 @@ export default function HeroBanner({
     hasCopy || href ? (
       <div className={hero ? "max-w-2xl space-y-4 md:space-y-7" : "max-w-2xl space-y-3 md:space-y-4"}>
         {hero && hasCopy ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md">
-            <Beaker className="h-3.5 w-3.5 text-sage" />
-            <span className="tech-label text-sage-light/90">Precision chemistry for modern industry</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 md:border-white/20 md:bg-white/10 md:backdrop-blur-md">
+            <Beaker className="h-3.5 w-3.5 text-brand md:text-sage-light" />
+            <span className="tech-label text-ink md:text-white">Precision chemistry for modern industry</span>
           </div>
         ) : null}
 
         {title ? (
           <h1
-            className={`font-display font-bold tracking-[-0.03em] text-white ${
+            className={`font-display font-bold tracking-[-0.03em] text-ink md:text-white ${
               hero
                 ? "text-[clamp(1.85rem,8vw,5rem)] leading-[1.08] md:leading-[1.04]"
                 : "text-[clamp(1.5rem,6vw,3.5rem)] leading-[1.12] md:leading-[1.08]"
@@ -151,7 +151,7 @@ export default function HeroBanner({
         ) : null}
 
         {subtitle ? (
-          <p className={`max-w-xl text-white/70 ${hero ? "text-sm leading-relaxed md:text-[17px] md:leading-[1.7] md:text-lg" : "text-sm md:text-base"}`}>
+          <p className={`max-w-xl text-ink-mute md:text-white/85 ${hero ? "text-sm leading-relaxed md:text-[17px] md:leading-[1.7] md:text-lg" : "text-sm md:text-base"}`}>
             {subtitle}
           </p>
         ) : null}
@@ -163,7 +163,7 @@ export default function HeroBanner({
             {href ? (
               <Link
                 href={href}
-                className="group inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-2.5 text-sm font-medium text-forest shadow-lg shadow-white/10 transition hover:bg-sage-light md:px-8 md:py-3.5 md:text-[15px]"
+                className="group inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-brand-ink shadow-card transition hover:bg-brand-hi md:px-8 md:py-3.5 md:text-[15px]"
               >
                 {hero ? (banner.link && banner.link !== "/shop" ? "Learn more" : "Explore Products") : "View collection"}
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -172,7 +172,7 @@ export default function HeroBanner({
             {hero && hasCopy ? (
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/35 hover:bg-white/10 md:px-8 md:py-3.5 md:text-[15px]"
+                className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-6 py-2.5 text-sm font-medium text-ink transition hover:border-line-hi hover:bg-surface-2 md:border-white/30 md:bg-white/10 md:px-8 md:py-3.5 md:text-[15px] md:text-white md:backdrop-blur-sm md:hover:bg-white/20"
               >
                 Request a Quote
               </Link>
@@ -182,21 +182,21 @@ export default function HeroBanner({
 
         {hero && hasCopy ? (
           <div className="hidden flex-wrap gap-x-6 gap-y-2 pt-8 md:flex">
-            <span className="flex items-center gap-2 text-sm font-medium text-white/55">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/8">
-                <ShieldCheck className="h-3.5 w-3.5 text-sage" />
+            <span className="flex items-center gap-2 text-sm font-medium text-ink md:text-white/90">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface md:border-white/20 md:bg-white/15">
+                <ShieldCheck className="h-3.5 w-3.5 text-brand md:text-sage-light" />
               </span>
               Batch Certified
             </span>
-            <span className="flex items-center gap-2 text-sm font-medium text-white/55">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/8">
-                <Droplets className="h-3.5 w-3.5 text-sage" />
+            <span className="flex items-center gap-2 text-sm font-medium text-ink md:text-white/90">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface md:border-white/20 md:bg-white/15">
+                <Droplets className="h-3.5 w-3.5 text-brand md:text-sage-light" />
               </span>
               <span className="font-mono text-[13px] tabular-nums">99%+</span> Purity
             </span>
-            <span className="flex items-center gap-2 text-sm font-medium text-white/55">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/8">
-                <Leaf className="h-3.5 w-3.5 text-sage" />
+            <span className="flex items-center gap-2 text-sm font-medium text-ink md:text-white/90">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface md:border-white/20 md:bg-white/15">
+                <Leaf className="h-3.5 w-3.5 text-brand md:text-sage-light" />
               </span>
               Eco-Compliant
             </span>
@@ -215,8 +215,7 @@ export default function HeroBanner({
         <BannerMedia banner={banner} className="block h-auto w-full max-w-none object-center" />
         {overlayInner ? (
           <div className="pointer-events-none absolute inset-0 hidden md:block">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a1a0d]/85 via-[#0a1a0d]/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1a0d]/50 via-transparent to-[#0a1a0d]/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/15 to-transparent" />
           </div>
         ) : null}
         <Grain />
@@ -229,7 +228,7 @@ export default function HeroBanner({
                 aria-label={`Show banner ${i + 1}`}
                 aria-current={i === index}
                 onClick={() => setIndex(i)}
-                className={`h-2 rounded-full transition ${i === index ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/70"}`}
+                className={`h-2 rounded-full transition ${i === index ? "w-8 bg-surface" : "w-2 bg-ink-dim hover:bg-ink-mute"}`}
               />
             ))}
           </div>
@@ -237,7 +236,7 @@ export default function HeroBanner({
       </div>
 
       {overlayInner ? (
-        <div className="relative z-10 bg-[#0a1a0d] px-5 py-5 pointer-events-none sm:px-6 md:absolute md:inset-0 md:flex md:items-center md:bg-transparent md:py-20 lg:px-8">
+        <div className="relative z-10 bg-bg px-5 py-5 pointer-events-none sm:px-6 md:absolute md:inset-0 md:flex md:items-center md:bg-transparent md:py-20 lg:px-8">
           <div className="pointer-events-auto mx-auto w-full max-w-7xl">{overlayInner}</div>
         </div>
       ) : null}

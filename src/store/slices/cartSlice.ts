@@ -18,6 +18,10 @@ function persist(items: CartItem[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
+function sameItem(a: CartItem, productId: string, variantId?: string) {
+  return a.productId === productId && String(a.variantId || "") === String(variantId || "");
+}
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: { items: [] as CartItem[], hydrated: false },
@@ -26,21 +30,28 @@ const cartSlice = createSlice({
       state.items = loadCart();
       state.hydrated = true;
     },
-    addToCart(state, action: PayloadAction<{ productId: string; quantity?: number }>) {
+    addToCart(state, action: PayloadAction<{ productId: string; quantity?: number; variantId?: string }>) {
       const qty = action.payload.quantity ?? 1;
-      const existing = state.items.find((i) => i.productId === action.payload.productId);
+      const variantId = action.payload.variantId || "";
+      const existing = state.items.find((i) => sameItem(i, action.payload.productId, variantId));
       if (existing) existing.quantity += qty;
-      else state.items.push({ productId: action.payload.productId, quantity: qty });
+      else state.items.push({ productId: action.payload.productId, variantId, quantity: qty });
       persist(state.items);
     },
-    setQuantity(state, action: PayloadAction<{ productId: string; quantity: number }>) {
-      const item = state.items.find((i) => i.productId === action.payload.productId);
+    setQuantity(state, action: PayloadAction<{ productId: string; quantity: number; variantId?: string }>) {
+      const item = state.items.find((i) => sameItem(i, action.payload.productId, action.payload.variantId));
       if (!item) return;
       item.quantity = Math.max(1, action.payload.quantity);
       persist(state.items);
     },
-    removeFromCart(state, action: PayloadAction<string>) {
-      state.items = state.items.filter((i) => i.productId !== action.payload);
+    removeFromCart(state, action: PayloadAction<{ productId: string; variantId?: string } | string>) {
+      if (typeof action.payload === "string") {
+        state.items = state.items.filter((i) => i.productId !== action.payload);
+      } else {
+        state.items = state.items.filter(
+          (i) => !sameItem(i, action.payload.productId, action.payload.variantId)
+        );
+      }
       persist(state.items);
     },
     clearCart(state) {

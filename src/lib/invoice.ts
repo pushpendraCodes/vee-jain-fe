@@ -4,7 +4,7 @@ import type { Order, PaymentMethod } from "@/types";
 
 export const SELLER = {
   name: BRAND,
-  address: "Plot No. 45, GIDC Industrial Estate, Phase 2, Vatva, Ahmedabad 382445, Gujarat, India",
+  address: "Plot No. 45, GIDC Industrial Estate, Phase 2, Ludhiyana Punjab 382445, Gujarat, India",
   phone: "+91 79 2583 1200",
   email: "sales@veejaindyes.com",
 };
@@ -15,6 +15,7 @@ export function paymentMethodLabel(method?: PaymentMethod | string) {
     upi: "UPI",
     netbanking: "Net banking",
     rtgs: "RTGS / NEFT",
+    credit: "Business credit",
     card: "Card",
   };
   return map[String(method || "")] || String(method || "—");

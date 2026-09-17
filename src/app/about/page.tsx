@@ -6,10 +6,10 @@ export default function AboutPage() {
   return (
     <div className="pb-20">
       {/* Hero */}
-      <section className="bg-cream pb-14 pt-12 md:pb-20 md:pt-16">
+      <section className="bg-bg pb-14 pt-12 md:pb-20 md:pt-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-sage-light px-4 py-2 text-xs font-medium text-forest">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2 text-xs font-medium text-ink">
               <Award className="h-4 w-4" /> Manufacturing excellence in precision dyes
             </div>
 
@@ -55,9 +55,9 @@ export default function AboutPage() {
                 desc: "Hazardous and non-hazardous packaging ranging from sample pails to bulk drums.",
               },
             ].map((card) => (
-              <div key={card.title} className="rounded-[1.75rem] bg-white p-7 shadow-sm">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sage-light">
-                  <card.icon className="h-5 w-5 text-forest" />
+              <div key={card.title} className="rounded-2xl bg-surface p-7">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-2">
+                  <card.icon className="h-5 w-5 text-ink" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-text-primary">{card.title}</h3>
                 <p className="text-sm leading-relaxed text-text-secondary">{card.desc}</p>
@@ -70,17 +70,17 @@ export default function AboutPage() {
       {/* Story */}
       <section className="py-14 md:py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 overflow-hidden rounded-[2rem] lg:grid-cols-2">
-            <div className="relative min-h-[280px] bg-forest p-8 lg:p-12">
+          <div className="grid grid-cols-1 overflow-hidden rounded-2xl lg:grid-cols-2">
+            <div className="relative min-h-[280px] bg-forest p-8 text-on-dark lg:p-12">
               <div className="pointer-events-none absolute inset-0 opacity-10 sci-grid" />
               <div className="relative flex h-full flex-col justify-end">
-                <span className="text-xs font-medium uppercase tracking-wider text-accent">Company Focus</span>
-                <h2 className="font-display mt-3 text-3xl font-bold text-on-dark sm:text-4xl">
+                <span className="text-xs font-medium uppercase tracking-[0.08em] text-sage-light">Company Focus</span>
+                <h2 className="font-display mt-3 text-3xl font-bold text-white sm:text-4xl">
                   Science, Precision &amp; Industrial Reliability
                 </h2>
               </div>
             </div>
-            <div className="bg-white p-8 lg:p-12">
+            <div className="bg-surface p-8 lg:p-12">
               <p className="text-base leading-relaxed text-text-secondary">
                 We combine laboratory discipline with industrial supply reliability — helping buyers
                 source high-purity reactive dyes and chemicals with clear technical guidance.
@@ -93,7 +93,7 @@ export default function AboutPage() {
                   "Reliable industrial supply",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm font-medium text-text-primary">
-                    <span className="h-2 w-2 rounded-full bg-accent" /> {item}
+                    <span className="h-2 w-2 rounded-full bg-brand" /> {item}
                   </li>
                 ))}
               </ul>
