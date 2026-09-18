@@ -5,8 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState, useEffect, useRef } from "react";
 import { useSite } from "@/components/site/SiteProvider";
 import { useAppSelector } from "@/store/hooks";
-import { fetchCategories, fetchProducts } from "@/lib/api";
-import { CATEGORIES, DIVISIONS } from "@/lib/constants";
+import { fetchProducts } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import type { Product } from "@/types";
 import { Search, ShoppingBag, Menu, X, ArrowRight } from "lucide-react";
@@ -21,8 +20,6 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-const FALLBACK_CATEGORIES = CATEGORIES.filter((name) => name !== "All Products");
-
 export default function Header() {
   const { site } = useSite();
   const pathname = usePathname();
@@ -31,7 +28,6 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const cartCount = useAppSelector((s) =>
@@ -78,22 +74,6 @@ export default function Header() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchCategories()
-      .then((list) => {
-        if (cancelled) return;
-        const next = list.filter((name) => name && name !== "All Products");
-        if (next.length) setCategories(next);
-      })
-      .catch(() => {
-        if (!cancelled) setCategories(FALLBACK_CATEGORIES);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;

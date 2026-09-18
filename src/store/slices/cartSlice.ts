@@ -48,9 +48,8 @@ const cartSlice = createSlice({
       if (typeof action.payload === "string") {
         state.items = state.items.filter((i) => i.productId !== action.payload);
       } else {
-        state.items = state.items.filter(
-          (i) => !sameItem(i, action.payload.productId, action.payload.variantId)
-        );
+        const { productId, variantId } = action.payload;
+        state.items = state.items.filter((i) => !sameItem(i, productId, variantId));
       }
       persist(state.items);
     },

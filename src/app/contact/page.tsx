@@ -4,7 +4,7 @@ import { FormEvent, Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { submitQuote, ApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
-import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare, ShieldCheck, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Send, CheckCircle2, MessageSquare, Clock } from "lucide-react";
 import { formatINR } from "@/lib/format";
 
 function ContactPageContent() {
