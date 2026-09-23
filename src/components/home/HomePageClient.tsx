@@ -22,6 +22,7 @@ import {
   FileCheck2,
   Play,
   Eye,
+  ChevronLeft,
   ChevronRight,
   HelpCircle,
   Beaker,
@@ -32,6 +33,124 @@ import {
 interface HomePageClientProps {
   products: Product[];
   videos: EducationVideo[];
+}
+
+function LearningCarousel({ videos }: { videos: EducationVideo[] }) {
+  const items = videos.slice(0, 8);
+  const scroller = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const goTo = (next: number) => {
+    const clamped = ((next % items.length) + items.length) % items.length;
+    const el = scroller.current;
+    const card = el?.children[clamped] as HTMLElement | undefined;
+    if (el && card) {
+      el.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+    }
+    setIndex(clamped);
+  };
+
+  useEffect(() => {
+    if (items.length < 2 || paused) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const id = window.setInterval(() => goTo(index + 1), 4500);
+    return () => window.clearInterval(id);
+  }, [index, items.length, paused]);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const onScroll = () => {
+      const cards = Array.from(el.children) as HTMLElement[];
+      const nearest = cards.reduce((best, card, i) => {
+        const dist = Math.abs(card.offsetLeft - el.scrollLeft);
+        return dist < best.dist ? { i, dist } : best;
+      }, { i: 0, dist: Number.POSITIVE_INFINITY });
+      setIndex(nearest.i);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div
+        ref={scroller}
+        className="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+      >
+        {items.map((v) => (
+          <Link
+            key={v.id}
+            href={`/education/${v.slug}`}
+            className="group w-[78%] shrink-0 snap-start overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md sm:w-[46%] lg:w-[31%]"
+          >
+            <div className="relative aspect-video bg-black">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={youtubeThumb(v.youtubeId || youtubeIdFromUrl(v.videoUrl), v.thumbnail)}
+                alt=""
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+              />
+              <span className="absolute inset-0 flex items-center justify-center bg-black/15">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
+                  <Play className="ml-0.5 h-4 w-4 fill-current" />
+                </span>
+              </span>
+            </div>
+            <div className="space-y-1 p-3">
+              <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">{v.title}</h3>
+              <p className="line-clamp-2 text-xs text-text-secondary">{v.description}</p>
+              <p className="inline-flex items-center gap-1 text-[11px] text-text-secondary">
+                <Eye className="h-3 w-3 text-accent" />
+                {formatViews(v.views)} views
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {items.length > 1 ? (
+        <div className="mt-5 flex items-center justify-between">
+          <div className="flex gap-1.5">
+            {items.map((v, i) => (
+              <button
+                key={v.id}
+                type="button"
+                aria-label={`Show video ${i + 1}`}
+                aria-current={i === index}
+                onClick={() => goTo(i)}
+                className={`h-2 rounded-full transition ${i === index ? "w-6 bg-forest" : "w-2 bg-forest/25 hover:bg-forest/50"}`}
+              />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              aria-label="Previous videos"
+              onClick={() => goTo(index - 1)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-ink transition hover:border-line-hi"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next videos"
+              onClick={() => goTo(index + 1)}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-ink transition hover:border-line-hi"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function HeroBackdrop() {
@@ -332,33 +451,7 @@ export default function HomePageClient({ products, videos }: HomePageClientProps
           </Reveal>
 
           {videos.length ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {videos.slice(0, 8).map((v) => (
-                <Link
-                  key={v.id}
-                  href={`/education/${v.slug}`}
-                  className="group overflow-hidden rounded-xl bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="relative aspect-video bg-black">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={youtubeThumb(v.youtubeId || youtubeIdFromUrl(v.videoUrl), v.thumbnail)} alt="" className="h-full w-full object-cover" />
-                    <span className="absolute inset-0 flex items-center justify-center bg-black/15">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
-                        <Play className="ml-0.5 h-4 w-4 fill-current" />
-                      </span>
-                    </span>
-                  </div>
-                  <div className="space-y-1 p-3">
-                    <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">{v.title}</h3>
-                    <p className="line-clamp-2 text-xs text-text-secondary">{v.description}</p>
-                    <p className="inline-flex items-center gap-1 text-[11px] text-text-secondary">
-                      <Eye className="h-3 w-3 text-accent" />
-                      {formatViews(v.views)} views
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <LearningCarousel videos={videos} />
           ) : (
             <p className="text-sm text-text-secondary">No videos yet.</p>
           )}
